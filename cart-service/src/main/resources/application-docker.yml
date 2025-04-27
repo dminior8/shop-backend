@@ -1,0 +1,30 @@
+server:
+  port: 8082
+
+messaging:
+  exchange:
+    cart-events: cart.events.exchange
+    order-events: order.events.exchange
+
+spring:
+  application:
+    name: cart-service
+  datasource:
+    url: jdbc:postgresql://postgres:5432/shop
+    username: shopuser
+    password: shoppass
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+  data:
+    redis:
+      port: 6379
+      host: redis
+
+external:
+  product-service:
+    base-url: http://product-service:8081
