@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8081
 
 messaging:
   exchange:
@@ -7,12 +7,15 @@ messaging:
     order-events: order.events.exchange
 
 spring:
+  cache:
+    type: CAFFEINE
   application:
     name: cart-service
   datasource:
     url: jdbc:postgresql://postgres:5432/shop
     username: shopuser
     password: shoppass
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -25,6 +28,6 @@ spring:
       port: 6379
       host: redis
 
-external:
-  product-service:
-    base-url: http://product-service:8081
+#external:
+#  product-service:
+#    base-url: http://product-service:8081

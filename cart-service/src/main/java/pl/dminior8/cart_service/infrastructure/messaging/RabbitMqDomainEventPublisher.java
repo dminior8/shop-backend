@@ -1,17 +1,13 @@
-package pl.dminior8.cart_service.infrastructure.external.messaging;
+package pl.dminior8.cart_service.infrastructure.messaging;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import pl.dminior8.common.event.ProductReservedEvent;
-import pl.dminior8.common.event.CartCheckedOutEvent;
+import pl.dminior8.cart_service.domain.event.CartCheckedOutEvent;
+import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
 
-/**
- * RabbitMQ–owa implementacja.
- * Wysyła JSON–owe zdarzenia do wskazanych exchange’ów.
- */
 @Component
 public class RabbitMqDomainEventPublisher implements DomainEventPublisher {
 

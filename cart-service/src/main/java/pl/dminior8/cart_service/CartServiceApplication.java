@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = "pl.dminior8.cart_service.infrastructure.external")
+@EnableFeignClients(basePackages = "pl.dminior8.cart_service.infrastructure.openfeign")
 public class CartServiceApplication {
 
 	public static void main(String[] args) {

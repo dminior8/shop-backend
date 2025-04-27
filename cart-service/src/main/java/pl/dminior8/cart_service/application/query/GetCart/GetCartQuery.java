@@ -1,14 +1,13 @@
 package pl.dminior8.cart_service.application.query.GetCart;
 
 import java.util.Objects;
+import java.util.UUID;
 
-/**
- * Zapytanie o cały koszyk danego użytkownika.
- */
-public record GetCartQuery(String userId) {
+
+public record GetCartQuery(UUID userId) {
     public GetCartQuery {
         Objects.requireNonNull(userId, "userId must not be null");
-        if (userId.isBlank()) {
+        if (userId.toString().isEmpty()) {
             throw new IllegalArgumentException("userId must not be blank");
         }
     }

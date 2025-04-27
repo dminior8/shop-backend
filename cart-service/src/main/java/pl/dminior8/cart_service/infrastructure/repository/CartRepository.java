@@ -1,15 +1,18 @@
 package pl.dminior8.cart_service.infrastructure.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import pl.dminior8.cart_service.domain.model.Cart;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Interfejs repozytorium domenowego koszyka.
  */
-public interface CartRepository {
-
-    Optional<Cart> findByUserId(String userId);
+@Repository
+public interface CartRepository extends JpaRepository<Cart, UUID> {
+    Optional<Cart> findByUserId(UUID userId);
 
     Cart save(Cart cart);
 }

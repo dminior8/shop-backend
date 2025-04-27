@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.infrastructure.external.messaging;
+package pl.dminior8.cart_service.infrastructure.messaging;
 
 /**
  * Abstrakcja nad dowolnym systemem kolejkowym.

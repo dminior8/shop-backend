@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.infrastructure.external;
+package pl.dminior8.cart_service.infrastructure.openfeign;
 
 import pl.dminior8.common.dto.ProductDto;
 import org.springframework.cloud.openfeign.FeignClient;

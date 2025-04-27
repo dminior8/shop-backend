@@ -1,15 +1,19 @@
 package pl.dminior8.cart_service.domain.model;
 
 import jakarta.persistence.*;
-import pl.dminior8.cart_service.domain.event.CartCheckedOut;
-import pl.dminior8.cart_service.domain.event.ProductRemoved;
-import pl.dminior8.cart_service.domain.event.ProductReserved;
+import lombok.Getter;
+import pl.dminior8.cart_service.domain.event.CartCheckedOutEvent;
+import pl.dminior8.cart_service.domain.event.ProductRemovedEvent;
+import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "carts")
+@Getter
 public class Cart {
     @Id
     @GeneratedValue
@@ -17,7 +21,8 @@ public class Cart {
 
     private UUID userId;
 
-    @Enumerated(EnumType.STRING) private CartStatus status = CartStatus.ACTIVE;
+    @Enumerated(EnumType.STRING)
+    private CartStatus status = CartStatus.ACTIVE;
     private Instant createdAt = Instant.now();
 
     private Instant lastModifiedAt = Instant.now();
@@ -39,7 +44,7 @@ public class Cart {
         cart.status = CartStatus.ACTIVE;
         cart.createdAt = Instant.now();
         cart.lastModifiedAt = Instant.now();
-        /* cart.domainEvents.add(new ProductReserved(tu ewentualne eventy inicjalizacyjne ));*/
+
         return cart;
     }
 
@@ -56,8 +61,8 @@ public class Cart {
             items.add(new CartItem(productId, quantity, Instant.now()));
         }
         this.lastModifiedAt = Instant.now();
-        // rejestrujemy zdarzenie
-        this.domainEvents.add(new ProductReserved(this.id, productId, quantity));
+        // rejestracja zdarzenia
+        this.domainEvents.add(new ProductReservedEvent(this.id, productId, quantity));
     }
 
     public void removeProduct(UUID productId, int quantity) {
@@ -72,13 +77,11 @@ public class Cart {
             throw new IllegalArgumentException("Quantity must be positive");
         }
         if (quantity >= existing.getQuantity()) {
-            // usuwamy całą pozycję
             items.remove(existing);
-            domainEvents.add(new ProductRemoved(this.id, productId, existing.getQuantity()));
+            domainEvents.add(new ProductRemovedEvent(this.id, productId, existing.getQuantity()));
         } else {
-            // zmniejszamy ilość
             existing.decreaseQuantity(quantity);
-            domainEvents.add(new ProductRemoved(this.id, productId, quantity));
+            domainEvents.add(new ProductRemovedEvent(this.id, productId, quantity));
         }
         this.lastModifiedAt = Instant.now();
     }
@@ -88,7 +91,7 @@ public class Cart {
         ensureActive();
         this.status = CartStatus.CHECKED_OUT;
         this.lastModifiedAt = Instant.now();
-        domainEvents.add(new CartCheckedOut(this.id, this.userId));
+        domainEvents.add(new CartCheckedOutEvent(this.id, this.userId));
     }
 
     private void ensureActive() {
@@ -102,5 +105,4 @@ public class Cart {
         domainEvents.clear();
         return events;
     }
-
 }

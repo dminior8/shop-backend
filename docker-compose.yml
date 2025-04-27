@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: shop-postgres
+    container_name: postgres
     environment:
       POSTGRES_DB: shop
       POSTGRES_USER: shopuser
@@ -10,8 +10,8 @@ services:
       - "5432:5432"
 
   redis:
-    image: redis:7
-    container_name: shop-redis
+    image: redis:alpine
+    container_name: redis
     ports:
       - "6379:6379"
 
@@ -25,84 +25,46 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
-  mongo:
-    image: mongo:latest
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-
-
-  product-service:
-    build: ./product-service
-    container_name: product-service
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
+#  product-service:
+#    build:
+#      context: .
+#      dockerfile: product-service/Dockerfile
+#    container_name: product-service
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - postgres
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
 
   cart-service:
-    build: ./cart-service
+    build:
+      context: .
+      dockerfile: cart-service/Dockerfile
     container_name: cart-service
     ports:
-      - "8082:8082"
+      - "8081:8081"
     depends_on:
       - postgres
       - redis
       - rabbitmq
-      - product-service
+#      - product-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
 
-  order-service:
-    build: ./order-service
-    container_name: order-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - rabbitmq
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-  producer-service:
-    build:
-      context: ./notifications-service
-    image: producer-service
-    container_name: producer-service
-    ports:
-      - "8083:8080"
-    depends_on:
-      - mongo
-      - rabbitmq
-
-  email-notifications-listener:
-    build:
-      context: ./email-notifications-listener
-    container_name: email-notifications-listener
-    ports:
-      - "8081:8081"
-    depends_on:
-      - mongo
-      - rabbitmq
-      - producer-service
-
-  push-notifications-listener:
-    build:
-      context: ./push-notifications-listener
-    container_name: push-notifications-listener
-    ports:
-      - "8082:8082"
-    depends_on:
-      - mongo
-      - rabbitmq
-      - producer-service
+#  order-service:
+#    build:
+#      context: .
+#      dockerfile: order-service/Dockerfile
+#    container_name: order-service
+#    ports:
+#      - "8083:8083"
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
 
 # Volumes do MongoDB - wolumeny zapobiegają usunieciu danych gdy kontener usuwany/zatrzymywany
 volumes:
-  mongo-data:
+  postgres-data:
 

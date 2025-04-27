@@ -7,28 +7,34 @@ import pl.dminior8.cart_service.application.query.GetCart.GetCartQueryHandler;
 import pl.dminior8.cart_service.application.query.GetCartTotalValue.GetCartTotalValueQuery;
 import pl.dminior8.cart_service.application.query.GetCartTotalValue.GetCartTotalValueQueryHandler;
 import pl.dminior8.cart_service.domain.model.Cart;
+import pl.dminior8.cart_service.interfaces.dto.CartDto;
+import pl.dminior8.cart_service.interfaces.mapper.CartDtoMapper;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/v1/api/cart")
 public class CartQueryController {
 
     private final GetCartQueryHandler getCart;
     private final GetCartTotalValueQueryHandler getTotal;
+    private final CartDtoMapper cartDtoMapper;
 
     public CartQueryController(GetCartQueryHandler getCart,
-                               GetCartTotalValueQueryHandler getTotal) {
+                               GetCartTotalValueQueryHandler getTotal, CartDtoMapper cartDtoMapper) {
         this.getCart = getCart;
         this.getTotal = getTotal;
+        this.cartDtoMapper = cartDtoMapper;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<Cart> getCart(@PathVariable String userId) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<CartDto> getCart(@PathVariable UUID userId) {
         Cart cart = getCart.handle(new GetCartQuery(userId));
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(cartDtoMapper.toCartDto(cart));
     }
 
     @GetMapping("/{userId}/total")
-    public ResponseEntity<Double> getTotal(@PathVariable String userId) {
+    public ResponseEntity<Double> getTotal(@PathVariable UUID userId) {
         double sum = getTotal.handle(new GetCartTotalValueQuery(userId));
         return ResponseEntity.ok(sum);
     }

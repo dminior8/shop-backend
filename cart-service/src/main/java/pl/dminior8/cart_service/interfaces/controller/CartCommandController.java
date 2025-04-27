@@ -29,13 +29,13 @@ public class CartCommandController {
         this.checkoutHandler = checkoutHandler;
     }
 
-    @PostMapping("/{userId}")
+    @PostMapping("/user/{userId}")
     public ResponseEntity<Void> createCart(@PathVariable UUID userId) {
         createHandler.handle(CartCommand.builder().userId(userId).build());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{userId}/add")
+    @PostMapping("/user/{userId}/add-product")
     public ResponseEntity<Void> addProduct(@PathVariable UUID userId,
                                            @RequestParam UUID productId,
                                            @RequestParam int quantity) {
@@ -43,7 +43,7 @@ public class CartCommandController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{userId}/remove")
+    @DeleteMapping("/user/{userId}/remove-product")
     public ResponseEntity<Void> removeProduct(@PathVariable UUID userId,
                                               @RequestParam UUID productId,
                                               @RequestParam int quantity) {
@@ -51,7 +51,7 @@ public class CartCommandController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{userId}/checkout")
+    @PostMapping("/user/{userId}/checkout")
     public ResponseEntity<Void> checkout(@PathVariable UUID userId) {
         checkoutHandler.handle(CartCommand.builder().userId(userId).build());
         return ResponseEntity.ok().build();

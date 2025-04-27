@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dminior8.cart_service.application.command.CartCommand;
 import pl.dminior8.cart_service.domain.model.Cart;
-import pl.dminior8.cart_service.infrastructure.external.messaging.DomainEventPublisher;
+import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 
 @Component

@@ -15,7 +15,7 @@ public class GetCartTotalValueQueryHandler {
     }
 
     public double handle(GetCartTotalValueQuery query) {
-        Cart cart = cartRepo.findByUserId(query.getUserId())
+        Cart cart = cartRepo.findByUserId(query.userId())
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
         return cart.getItems()
                 .stream()

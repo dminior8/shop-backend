@@ -14,7 +14,7 @@ public class GetCartQueryHandler {
     }
 
     public Cart handle(GetCartQuery query) {
-        return cartRepo.findByUserId(query.getUserId())
+        return cartRepo.findByUserId(query.userId())
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
     }
 }
