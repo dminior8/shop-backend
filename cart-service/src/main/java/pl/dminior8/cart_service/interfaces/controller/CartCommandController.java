@@ -29,11 +29,11 @@ public class CartCommandController {
         this.checkoutHandler = checkoutHandler;
     }
 
-//    @PostMapping("/{userId}")
-//    public ResponseEntity<Void> createCart(@PathVariable UUID userId) {
-//        createHandler.handle(CartCommand.builder().userId(userId).build());
-//        return ResponseEntity.ok().build();
-//    }
+    @PostMapping("/{userId}")
+    public ResponseEntity<Void> createCart(@PathVariable UUID userId) {
+        createHandler.handle(CartCommand.builder().userId(userId).build());
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/{userId}/add")
     public ResponseEntity<Void> addProduct(@PathVariable UUID userId,
@@ -43,18 +43,18 @@ public class CartCommandController {
         return ResponseEntity.ok().build();
     }
 
-//    @DeleteMapping("/{userId}/remove")
-//    public ResponseEntity<Void> removeProduct(@PathVariable UUID userId,
-//                                              @RequestParam UUID productId,
-//                                              @RequestParam int quantity) {
-//        removeHandler.handle(new RemoveProductFromCartCommand(userId, productId, quantity));
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @PostMapping("/{userId}/checkout")
-//    public ResponseEntity<Void> checkout(@PathVariable UUID userId) {
-//        checkoutHandler.handle(new CheckoutCartCommand(userId));
-//        return ResponseEntity.ok().build();
-//    }
+    @DeleteMapping("/{userId}/remove")
+    public ResponseEntity<Void> removeProduct(@PathVariable UUID userId,
+                                              @RequestParam UUID productId,
+                                              @RequestParam int quantity) {
+        removeHandler.handle(CartCommand.builder().userId(userId).productId(productId).quantity(quantity).build());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{userId}/checkout")
+    public ResponseEntity<Void> checkout(@PathVariable UUID userId) {
+        checkoutHandler.handle(CartCommand.builder().userId(userId).build());
+        return ResponseEntity.ok().build();
+    }
 }
 

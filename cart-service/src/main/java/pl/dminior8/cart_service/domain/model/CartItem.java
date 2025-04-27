@@ -32,5 +32,9 @@ public class CartItem {
     public void increaseQuantity(int delta) {
         this.quantity += delta;
     }
+
+    public void decreaseQuantity(int delta) {
+        this.quantity -= delta;
+    }
 }
 

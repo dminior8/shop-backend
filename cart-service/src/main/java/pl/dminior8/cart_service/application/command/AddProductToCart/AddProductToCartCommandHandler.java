@@ -6,7 +6,7 @@ import pl.dminior8.cart_service.application.command.CartCommand;
 import pl.dminior8.cart_service.domain.event.ProductReserved;
 import pl.dminior8.cart_service.domain.model.Cart;
 import pl.dminior8.cart_service.infrastructure.external.ProductServiceClient;
-import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
+import pl.dminior8.cart_service.infrastructure.external.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 
 

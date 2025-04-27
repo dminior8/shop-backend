@@ -2,8 +2,10 @@ package pl.dminior8.cart_service.interfaces.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.dminior8.cart_service.application.query.GetCartQueryHandler;
-import pl.dminior8.cart_service.application.query.GetCartTotalValueQueryHandler;
+import pl.dminior8.cart_service.application.query.GetCart.GetCartQuery;
+import pl.dminior8.cart_service.application.query.GetCart.GetCartQueryHandler;
+import pl.dminior8.cart_service.application.query.GetCartTotalValue.GetCartTotalValueQuery;
+import pl.dminior8.cart_service.application.query.GetCartTotalValue.GetCartTotalValueQueryHandler;
 import pl.dminior8.cart_service.domain.model.Cart;
 
 @RestController
