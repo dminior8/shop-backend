@@ -4,6 +4,7 @@ WORKDIR /home/gradle/project
 
 COPY settings.gradle build.gradle gradlew gradle/ ./
 COPY common common
+COPY init.sql /docker-entrypoint-initdb.d/
 COPY product-service product-service
 
 RUN chmod +x gradlew
