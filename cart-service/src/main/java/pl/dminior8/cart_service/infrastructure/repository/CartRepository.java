@@ -2,7 +2,7 @@ package pl.dminior8.cart_service.infrastructure.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pl.dminior8.cart_service.domain.model.Cart;
+import pl.dminior8.cart_service.domain.entity.Cart;
 
 import java.util.Optional;
 import java.util.UUID;
