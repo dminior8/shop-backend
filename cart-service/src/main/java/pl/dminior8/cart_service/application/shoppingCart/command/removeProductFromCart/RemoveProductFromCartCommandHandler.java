@@ -1,8 +1,8 @@
-package pl.dminior8.cart_service.application.cart.command.RemoveProductFromCart;
+package pl.dminior8.cart_service.application.shoppingCart.command.removeProductFromCart;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dminior8.cart_service.application.cart.command.AddProductToCart.AddProductToCartCommand;
+import pl.dminior8.cart_service.application.shoppingCart.command.addProductToCart.AddProductToCartCommand;
 import pl.dminior8.cart_service.domain.entity.Cart;
 import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;

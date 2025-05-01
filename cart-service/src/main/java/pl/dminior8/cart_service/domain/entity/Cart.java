@@ -3,6 +3,7 @@ package pl.dminior8.cart_service.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import pl.dminior8.cart_service.domain.event.CartCheckedOutEvent;
+import pl.dminior8.cart_service.domain.event.CartExpiredEvent;
 import pl.dminior8.cart_service.domain.event.ProductRemovedEvent;
 import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
 
@@ -104,5 +105,12 @@ public class Cart {
         List<Object> events = new ArrayList<>(domainEvents);
         domainEvents.clear();
         return events;
+    }
+
+    public void expire() {
+        if (this.status != CartStatus.ACTIVE) return;
+        this.status = CartStatus.EXPIRED;
+        this.lastModifiedAt = Instant.now();
+        this.domainEvents.add(new CartExpiredEvent(this.id, this.userId));
     }
 }

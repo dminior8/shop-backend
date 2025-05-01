@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - ./schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U shopuser -d shop" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -19,13 +24,32 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   redis:
     image: redis:alpine
     container_name: redis
     ports:
       - "6379:6379"
+    command:
+      ["redis-server", "--notify-keyspace-events", "Ex"] #2 - włącza publikację powiadomień o zdarzeniach, np. Ex - wygaśniećie kluczy
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis_insight_data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:management
@@ -36,6 +60,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 #  product-service:
 #    build:
@@ -57,9 +86,12 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 #      - product-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -77,6 +109,7 @@ services:
 #      SPRING_PROFILES_ACTIVE: docker
 
 
-#volumes:
-#  postgres-data:
+volumes:
+  postgres-data:
+  redis_insight_data:
 

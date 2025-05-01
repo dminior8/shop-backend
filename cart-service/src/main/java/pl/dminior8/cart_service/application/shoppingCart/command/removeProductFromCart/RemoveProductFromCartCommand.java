@@ -1,8 +1,8 @@
-package pl.dminior8.cart_service.application.cart.command.RemoveProductFromCart;
+package pl.dminior8.cart_service.application.shoppingCart.command.removeProductFromCart;
 
 
 import lombok.Builder;
-import pl.dminior8.cart_service.application.cart.command.CartCommand;
+import pl.dminior8.cart_service.application.shoppingCart.command.CartCommand;
 
 import java.util.UUID;
 

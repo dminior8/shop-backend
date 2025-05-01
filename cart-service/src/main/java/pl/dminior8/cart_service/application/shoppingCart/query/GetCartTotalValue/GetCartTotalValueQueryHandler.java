@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.application.cart.query.GetCartTotalValue;
+package pl.dminior8.cart_service.application.shoppingCart.query.GetCartTotalValue;
 
 
 import org.springframework.stereotype.Component;

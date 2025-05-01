@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.application.cart.query.GetCart;
+package pl.dminior8.cart_service.application.shoppingCart.query.GetCart;
 
 import org.springframework.stereotype.Component;
 import pl.dminior8.cart_service.domain.entity.Cart;

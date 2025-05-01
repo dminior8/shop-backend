@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.application.cart.query.GetCart;
+package pl.dminior8.cart_service.application.shoppingCart.query.GetCart;
 
 import java.util.Objects;
 import java.util.UUID;
