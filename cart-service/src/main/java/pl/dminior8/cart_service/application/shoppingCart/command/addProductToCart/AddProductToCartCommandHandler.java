@@ -48,7 +48,7 @@ public class AddProductToCartCommandHandler {
                 .orElseGet(() -> createCartCommandHandler.handle(new CreateCartCommand(cmd.userId())));
 
         // 2. Weryfikacja stanu produktu i blokada produktu
-        ProductDto product = productClient.getProductById(String.valueOf(cmd.productId()));
+        ProductDto product = productClient.getProductById(cmd.productId());
         if(product.getAvailableQuantity() >= cmd.quantity()){
             boolean locked = lockService.tryLockProduct(cmd.productId(), cart.getId());
             if (!locked) {
@@ -59,7 +59,7 @@ public class AddProductToCartCommandHandler {
         }
 
         // 3. Logika biznesowa w agregacie
-        cart.addProduct(cmd.productId(), cmd.quantity());
+        cart.addProduct(cmd.productId(), cmd.quantity(), product.getPrice());
 
         // 4. Zapis agregatu i odświeżenie TTL koszyka
         cartRepo.save(cart);

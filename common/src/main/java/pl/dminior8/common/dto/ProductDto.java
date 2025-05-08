@@ -2,10 +2,13 @@ package pl.dminior8.common.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ProductDto {
     @NotBlank
-    private String id;
+    private UUID id;
 
     @NotBlank
     private String name;
@@ -22,5 +25,5 @@ public class ProductDto {
     private int availableQuantity;
 
     @Min(0)
-    private double price;
+    private float price;
 }

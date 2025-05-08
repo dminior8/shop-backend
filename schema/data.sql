@@ -1,4 +1,4 @@
--- Przykładowe dane
+-- Some init data
 INSERT INTO products (id, name, description, price, available_qty) VALUES
                                                                        ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Laptop Gaming', '15.6", i7, 16GB RAM, RTX 3060', 5499.00, 10),
                                                                        ('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'Smartphone Flagship', '6.7", 256GB, 5G', 3999.00, 25),

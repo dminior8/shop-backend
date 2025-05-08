@@ -66,17 +66,17 @@ services:
       timeout: 5s
       retries: 5
 
-#  product-service:
-#    build:
-#      context: .
-#      dockerfile: product-service/Dockerfile
-#    container_name: product-service
-#    ports:
-#      - "8082:8082"
-#    depends_on:
-#      - postgres
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
+  product-service:
+    build:
+      context: .
+      dockerfile: product-service/Dockerfile
+    container_name: product-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
 
   cart-service:
     build:
@@ -92,7 +92,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-#      - product-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
 

@@ -49,7 +49,7 @@ public class Cart {
         return cart;
     }
 
-    public void addProduct(UUID productId, int quantity) {
+    public void addProduct(UUID productId, int quantity, float price) {
         ensureActive();
         CartItem existing = items.stream()
                 .filter(i -> i.getProductId().equals(productId))
@@ -59,7 +59,7 @@ public class Cart {
         if (existing != null) {
             existing.increaseQuantity(quantity);
         } else {
-            items.add(new CartItem(productId, quantity, Instant.now()));
+            items.add(new CartItem(id, productId, quantity, price));
         }
         this.lastModifiedAt = Instant.now();
         // rejestracja zdarzenia
