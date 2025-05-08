@@ -1,4 +1,4 @@
-# E-commerce Microservices System
+# E-commerce System
 
 This repository consists of **three independent microservices**: `Product Service`, `Cart Service`, and `Order Service`, along with a shared `Common` library. Together, they implement a scalable and well-structured e-commerce backend system. The architecture is built around **Domain-Driven Design (DDD)**, **CQRS (Command Query Responsibility Segregation)**, and **Clean Architecture** principles, ensuring clear separation of concerns, modularity, and maintainability.
 
