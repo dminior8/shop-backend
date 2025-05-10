@@ -6,7 +6,8 @@ CREATE TABLE products (
                           price         NUMERIC(12, 2)           NOT NULL CHECK (price >= 0),
                           available_qty INTEGER                  NOT NULL CHECK (available_qty >= 0),
                           created_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-                          updated_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+                          updated_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                          version          BIGINT                   NOT NULL DEFAULT 0
 );
 
 CREATE TABLE carts (
@@ -14,7 +15,7 @@ CREATE TABLE carts (
                        user_id          UUID                     NOT NULL,
                        status           VARCHAR(16)              NOT NULL CHECK (status IN ('NEW', 'ACTIVE', 'CHECKED_OUT', 'EXPIRED')),
                        created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-                       last_modified_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                        version          BIGINT                   NOT NULL DEFAULT 0
 );
 
@@ -44,6 +45,19 @@ CREATE TABLE order_items (
                              unit_price NUMERIC(12, 2) NOT NULL CHECK (unit_price >= 0),
                              PRIMARY KEY (order_id, product_id)
 );
+
+CREATE TABLE product_reservations (
+                                      id           UUID PRIMARY KEY,
+                                      cart_id      UUID                  NOT NULL,
+                                      product_id   UUID                  NOT NULL,
+                                      quantity     INTEGER               NOT NULL CHECK (quantity > 0),
+                                      created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+
+                                      UNIQUE(cart_id, product_id)
+);
+
+-- indeks przyspieszający pobieranie rezerwacji dla koszyka
+CREATE INDEX idx_reservations_cart_id ON product_reservations(cart_id);
 
 -- Indeksy
 CREATE INDEX idx_order_items_order_id ON order_items (order_id);

@@ -2,7 +2,6 @@ package pl.dminior8.cart_service.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +14,7 @@ import java.util.UUID;
 @Setter
 public class CartItem {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "cart_id")
@@ -27,12 +26,14 @@ public class CartItem {
     private int quantity;
 
     @Min(0)
-    private float price;
+    private double price;
 
     private Instant addedAt;
 
-    protected CartItem() {}
-    public CartItem(UUID cartId, UUID productId, int qty, float price) {
+    protected CartItem() {
+    }
+
+    public CartItem(UUID cartId, UUID productId, int qty, double price) {
         this.cartId = cartId;
         this.productId = productId;
         this.quantity = qty;

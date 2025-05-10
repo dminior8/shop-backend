@@ -18,7 +18,7 @@ public class CartDto {
 
     private Instant createdAt = Instant.now();
 
-    private Instant lastModifiedAt = Instant.now();
+    private Instant updatedAt = Instant.now();
 
     private List<CartItem> items = new ArrayList<>();
 }

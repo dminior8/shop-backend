@@ -29,6 +29,13 @@ public class CartActivityService {
         return key;
     }
 
+    public String expireCartTtl(UUID cartId) {
+        String key = "cart:active:" + cartId;
+        redis.expire(key, CART_TTL);
+        log.info("Expired TTL of " + key);
+        return key;
+    }
+
     public boolean exists(UUID cartId) {
         return TRUE.equals(redis.hasKey("cart:active:" + cartId));
     }

@@ -10,10 +10,8 @@ import pl.dminior8.cart_service.domain.entity.Cart;
 import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
 import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.redis.CartActivityService;
-import pl.dminior8.cart_service.infrastructure.redis.ProductLockService;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 import pl.dminior8.common.dto.ProductDto;
-import pl.dminior8.common.exceptions.product.ProductLockedException;
 import pl.dminior8.common.exceptions.product.ProductNotAvailableException;
 
 
@@ -23,20 +21,17 @@ public class AddProductToCartCommandHandler {
     private final CartRepository cartRepo;
     private final ExternalProductServiceClient productClient;
     private final DomainEventPublisher eventPublisher;
-    private final ProductLockService lockService;
     private final CartActivityService activityService;
     private final CreateCartCommandHandler createCartCommandHandler;
 
     public AddProductToCartCommandHandler(CartRepository cartRepo,
                                           ExternalProductServiceClient productClient,
                                           DomainEventPublisher eventPublisher,
-                                          ProductLockService lockService,
                                           CartActivityService activityService,
                                           CreateCartCommandHandler createCartCommandHandler) {
         this.cartRepo = cartRepo;
         this.productClient = productClient;
         this.eventPublisher = eventPublisher;
-        this.lockService = lockService;
         this.activityService = activityService;
         this.createCartCommandHandler = createCartCommandHandler;
     }
@@ -47,14 +42,10 @@ public class AddProductToCartCommandHandler {
         Cart cart = cartRepo.findByUserId(cmd.userId())
                 .orElseGet(() -> createCartCommandHandler.handle(new CreateCartCommand(cmd.userId())));
 
-        // 2. Weryfikacja stanu produktu i blokada produktu
+        // 2. Weryfikacja stanu produktu
         ProductDto product = productClient.getProductById(cmd.productId());
-        if(product.getAvailableQuantity() >= cmd.quantity()){
-            boolean locked = lockService.tryLockProduct(cmd.productId(), cart.getId());
-            if (!locked) {
-                throw new ProductLockedException(cmd.productId());
-            }
-        } else {
+
+        if(product.getAvailableQuantity() < cmd.quantity()){
             throw new ProductNotAvailableException(cmd.productId(), cmd.quantity(), product.getAvailableQuantity());
         }
 
@@ -63,11 +54,21 @@ public class AddProductToCartCommandHandler {
 
         // 4. Zapis agregatu i odświeżenie TTL koszyka
         cartRepo.save(cart);
+
+        // 5. Rezerwacja produktu
+        productClient.reserveProduct(
+                cmd.productId(),
+                cmd.userId(),
+                cart.getId(),
+                cmd.quantity()
+        );
+
+        // 6. Odświeżenie ważności koszyka
         activityService.refreshCartTtl(cart.getId());
 
-        // 5. Publikacja zdarzeń domenowych
+        // 7. Publikacja zdarzeń domenowych
         for (Object ev : cart.pullDomainEvents()) {
-            if (ev instanceof ProductReservedEvent pr) {
+            if (ev instanceof ProductReservedEvent) {
                 eventPublisher.publish(ev);
             }
         }

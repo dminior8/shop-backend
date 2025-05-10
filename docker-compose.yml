@@ -47,6 +47,8 @@ services:
       - "5540:5540"
     volumes:
       - redis_insight_data:/data
+    command:
+      ["redis-server","--notify-keyspace-events","Ex"]
     depends_on:
       redis:
         condition: service_healthy

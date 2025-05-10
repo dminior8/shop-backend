@@ -17,16 +17,17 @@ import java.util.UUID;
 @Getter
 public class Cart {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private UUID userId;
 
     @Enumerated(EnumType.STRING)
     private CartStatus status = CartStatus.ACTIVE;
+
     private Instant createdAt = Instant.now();
 
-    private Instant lastModifiedAt = Instant.now();
+    private Instant updatedAt = Instant.now();
 
     @Version
     private Long version;
@@ -44,12 +45,12 @@ public class Cart {
         cart.userId = userId;
         cart.status = CartStatus.ACTIVE;
         cart.createdAt = Instant.now();
-        cart.lastModifiedAt = Instant.now();
+        cart.updatedAt = Instant.now();
 
         return cart;
     }
 
-    public void addProduct(UUID productId, int quantity, float price) {
+    public void addProduct(UUID productId, int quantity, double price) {
         ensureActive();
         CartItem existing = items.stream()
                 .filter(i -> i.getProductId().equals(productId))
@@ -61,7 +62,7 @@ public class Cart {
         } else {
             items.add(new CartItem(id, productId, quantity, price));
         }
-        this.lastModifiedAt = Instant.now();
+        this.updatedAt = Instant.now();
         // rejestracja zdarzenia
         this.domainEvents.add(new ProductReservedEvent(this.id, productId, quantity));
     }
@@ -84,14 +85,14 @@ public class Cart {
             existing.decreaseQuantity(quantity);
             domainEvents.add(new ProductRemovedEvent(this.id, productId, quantity));
         }
-        this.lastModifiedAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     // finalizacja koszyka
     public void checkout() {
         ensureActive();
         this.status = CartStatus.CHECKED_OUT;
-        this.lastModifiedAt = Instant.now();
+        this.updatedAt = Instant.now();
         domainEvents.add(new CartCheckedOutEvent(this.id, this.userId));
     }
 
@@ -110,7 +111,7 @@ public class Cart {
     public void expire() {
         if (this.status != CartStatus.ACTIVE) return;
         this.status = CartStatus.EXPIRED;
-        this.lastModifiedAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.domainEvents.add(new CartExpiredEvent(this.id, this.userId));
     }
 }
