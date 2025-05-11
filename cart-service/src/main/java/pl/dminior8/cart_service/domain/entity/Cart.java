@@ -2,7 +2,7 @@ package pl.dminior8.cart_service.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import pl.dminior8.cart_service.domain.event.CartCheckedOutEvent;
+import pl.dminior8.common.event.CartCheckedOutEvent;
 import pl.dminior8.cart_service.domain.event.CartExpiredEvent;
 import pl.dminior8.cart_service.domain.event.ProductRemovedEvent;
 import pl.dminior8.cart_service.domain.event.ProductReservedEvent;

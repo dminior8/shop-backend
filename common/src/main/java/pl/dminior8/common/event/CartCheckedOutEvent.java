@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.domain.event;
+package pl.dminior8.common.event;
 
 
 import java.time.Instant;
