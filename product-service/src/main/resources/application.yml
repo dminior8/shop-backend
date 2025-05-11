@@ -21,7 +21,3 @@ spring:
     port: 5672
   application:
     name: product-service
-  data:
-    redis:
-      host: localhost
-      port: 6379

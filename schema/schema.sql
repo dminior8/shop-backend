@@ -34,16 +34,19 @@ CREATE TABLE orders (
                         cart_id      UUID                     NOT NULL UNIQUE REFERENCES carts(id),
                         status       VARCHAR(16)              NOT NULL CHECK (status IN ('PLACED', 'PROCESSING', 'COMPLETED', 'CANCELLED')),
                         total_amount NUMERIC(12, 2)           NOT NULL CHECK (total_amount >= 0),
+                        version          BIGINT                   NOT NULL DEFAULT 0,
                         created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-                        updated_at   TIMESTAMP WITH TIME ZONE
+                        updated_at   TIMESTAMP WITH TIME ZONE DEFAULT now()
+
 );
 
 CREATE TABLE order_items (
+                             id   UUID PRIMARY KEY,
                              order_id   UUID           NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
                              product_id UUID           NOT NULL REFERENCES products(id),
                              quantity   INTEGER        NOT NULL CHECK (quantity > 0),
                              unit_price NUMERIC(12, 2) NOT NULL CHECK (unit_price >= 0),
-                             PRIMARY KEY (order_id, product_id)
+                             version          BIGINT                   NOT NULL DEFAULT 0
 );
 
 CREATE TABLE product_reservations (
@@ -56,10 +59,7 @@ CREATE TABLE product_reservations (
                                       UNIQUE(cart_id, product_id)
 );
 
--- indeks przyspieszający pobieranie rezerwacji dla koszyka
 CREATE INDEX idx_reservations_cart_id ON product_reservations(cart_id);
-
--- Indeksy
 CREATE INDEX idx_order_items_order_id ON order_items (order_id);
 CREATE INDEX idx_cart_items_cart_id ON cart_items (cart_id);
 CREATE INDEX idx_products_available_qty ON products (available_qty);

@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U shopuser -d shop" ]
       interval: 5s
@@ -79,6 +79,11 @@ services:
       - postgres
     environment:
       SPRING_PROFILES_ACTIVE: docker
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://product-service:8082/actuator/health" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
 
   cart-service:
     build:
@@ -96,19 +101,31 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://cart-service:8081/actuator/health" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
 
-#  order-service:
-#    build:
-#      context: .
-#      dockerfile: order-service/Dockerfile
-#    container_name: order-service
-#    ports:
-#      - "8083:8083"
-#    depends_on:
-#      - rabbitmq
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: order-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://order-service:8083/actuator/health" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
 
 volumes:
   postgres-data:

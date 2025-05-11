@@ -2,7 +2,9 @@ FROM gradle:8.4-jdk21 AS build
 
 WORKDIR /home/gradle/project
 
-COPY settings.gradle build.gradle gradlew gradle/ ./
+COPY gradlew gradlew.bat settings.gradle build.gradle ./
+COPY gradle/ gradle/
+
 COPY common common
 COPY order-service order-service
 
@@ -14,6 +16,6 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 COPY --from=build /home/gradle/project/order-service/build/libs/order-service-0.0.1-SNAPSHOT.jar ./app.jar
 
-EXPOSE 8082
+EXPOSE 8083
 
 ENTRYPOINT ["java","-jar","app.jar"]

@@ -1,12 +1,10 @@
-package pl.dminior8.cart_service.application.shoppingCart.query.GetCartTotalValue;
+package pl.dminior8.cart_service.application.shoppingCart.query.getCartTotalValue;
 
 
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Zapytanie o łączną wartość koszyka danego użytkownika.
- */
+
 public record GetCartTotalValueQuery(UUID userId) {
     public GetCartTotalValueQuery {
         Objects.requireNonNull(userId, "userId must not be null");

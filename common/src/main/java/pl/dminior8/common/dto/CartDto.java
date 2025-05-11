@@ -1,8 +1,7 @@
-package pl.dminior8.cart_service.application.common.dto;
+package pl.dminior8.common.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import pl.dminior8.cart_service.domain.entity.CartItem;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,5 +19,5 @@ public class CartDto {
 
     private Instant updatedAt = Instant.now();
 
-    private List<CartItem> items = new ArrayList<>();
+    private List<CartItemDto> items = new ArrayList<>();
 }
