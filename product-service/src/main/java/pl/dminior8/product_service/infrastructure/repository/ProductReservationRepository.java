@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ReservationRepository extends JpaRepository<ProductReservation, UUID> {
+public interface ProductReservationRepository extends JpaRepository<ProductReservation, UUID> {
     Optional<ProductReservation> findByCartIdAndProductId(UUID cartId, UUID productId);
 
     List<ProductReservation> findAllByCartId(UUID cartId);
