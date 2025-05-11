@@ -41,9 +41,7 @@ public class ProductCommandController {
     public ResponseEntity<ProductDto> reserveProduct(@PathVariable UUID productId,
                                                      @RequestParam UUID cartId,
                                                      @RequestParam int quantity) {
-        // 1. Rezerwacja produktu
         reserveHandler.handle(new ReserveProductCommand(productId, cartId, quantity));
-        // 2. Pobranie zaktualizowanego stanu
         ProductDto product = mapper.toProductDto(queryHandler.handle(new GetProductQuery(productId)));
         return ResponseEntity.ok(product);
     }
@@ -52,16 +50,13 @@ public class ProductCommandController {
     public ResponseEntity<ProductDto> releaseProductPartially(@PathVariable UUID productId,
                                                               @RequestParam UUID cartId,
                                                               @RequestParam int quantity) {
-        // 1. Zwolnienie części rezerwacji
         releaseProductHandler.handle(new ReleaseProductCommand(productId, cartId, quantity));
-        // 2. Pobranie zaktualizowanego stanu
         ProductDto product = mapper.toProductDto(queryHandler.handle(new GetProductQuery(productId)));
         return ResponseEntity.ok(product);
     }
 
     @DeleteMapping("/release-by-cart/{cartId}")
     public ResponseEntity<Void> releaseByCart(@PathVariable UUID cartId) {
-        // 1. Zwolnienie wszystkich rezerwacji powiązanych z cartId
         releaseByCartHandler.handle(new ReleaseProductByCartCommand(cartId));
         return ResponseEntity.noContent().build();
     }
