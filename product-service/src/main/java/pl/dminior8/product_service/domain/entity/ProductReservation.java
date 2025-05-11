@@ -33,9 +33,6 @@ public class ProductReservation {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
-    private Instant updatedAt;
-
     public ProductReservation(UUID cartId, UUID productId, int qty) {
         if (qty <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
@@ -45,20 +42,17 @@ public class ProductReservation {
         this.productId = productId;
         this.quantity = qty;
         this.createdAt = now();
-        this.updatedAt = now();
     }
 
     public void decreaseQuantity(int delta) {
         if (delta <= 0) throw new IllegalArgumentException("Quantity must be positive");
         if (quantity < delta) throw new IllegalStateException("Not enough stock");
         quantity -= delta;
-        updatedAt = now();
     }
 
     public void increaseQuantity(int delta) {
         if (delta <= 0) throw new IllegalArgumentException("Quantity must be positive");
         quantity += delta;
-        updatedAt = now();
     }
 }
 

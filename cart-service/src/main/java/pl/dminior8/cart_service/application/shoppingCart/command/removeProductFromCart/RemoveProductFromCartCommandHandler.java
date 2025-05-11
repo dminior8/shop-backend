@@ -2,7 +2,6 @@ package pl.dminior8.cart_service.application.shoppingCart.command.removeProductF
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dminior8.cart_service.application.shoppingCart.command.addProductToCart.AddProductToCartCommand;
 import pl.dminior8.cart_service.domain.entity.Cart;
 import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
@@ -26,7 +25,7 @@ public class RemoveProductFromCartCommandHandler {
     }
 
     @Transactional
-    public void handle(AddProductToCartCommand cmd) {
+    public void handle(RemoveProductFromCartCommand cmd) {
         // 1. Załaduj agregat Cart
         Cart cart = cartRepo.findByUserId(cmd.userId())
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + cmd.userId()));

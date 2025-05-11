@@ -13,7 +13,7 @@ import pl.dminior8.cart_service.application.common.mapper.CartDtoMapper;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/api/user/{userId}/cart")
+@RequestMapping("/api/v1/user/{userId}/cart")
 public class CartQueryController {
 
     private final GetCartQueryHandler getCart;

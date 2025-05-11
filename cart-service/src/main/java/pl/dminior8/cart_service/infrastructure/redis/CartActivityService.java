@@ -7,13 +7,11 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.UUID;
 
-import static java.lang.Boolean.TRUE;
-
 @Component
 @Slf4j
 public class CartActivityService {
 
-    private static final Duration CART_TTL = Duration.ofMinutes(1);
+    private static final Duration CART_TTL = Duration.ofSeconds(20);
 
     private final RedisTemplate<String, Object> redis;
 
@@ -21,7 +19,7 @@ public class CartActivityService {
         this.redis = redis;
     }
 
-     // Odświeża Time To Live przy każdej operacji
+    // Odświeża Time To Live przy każdej operacji
     public String refreshCartTtl(UUID cartId) {
         String key = "cart:active:" + cartId;
         redis.opsForValue().set(key, System.currentTimeMillis(), CART_TTL);
@@ -34,9 +32,5 @@ public class CartActivityService {
         redis.expire(key, CART_TTL);
         log.info("Expired TTL of " + key);
         return key;
-    }
-
-    public boolean exists(UUID cartId) {
-        return TRUE.equals(redis.hasKey("cart:active:" + cartId));
     }
 }

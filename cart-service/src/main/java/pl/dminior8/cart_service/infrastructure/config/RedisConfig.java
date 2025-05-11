@@ -14,8 +14,6 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import pl.dminior8.cart_service.infrastructure.redis.CartExpirationListener;
 
-import java.time.Duration;
-
 @Configuration
 public class RedisConfig {
     @Value("${spring.data.redis.host}")
@@ -23,8 +21,6 @@ public class RedisConfig {
 
     @Value("${spring.data.redis.port}")
     private int redisPort;
-
-    private static final Duration CART_TTL = Duration.ofMinutes(1);
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {

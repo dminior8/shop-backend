@@ -27,15 +27,18 @@ public class CartExpirationListener implements MessageListener {
     @Transactional
     public void onMessage(Message message, byte[] pattern) {
         String expiredKey = new String(message.getBody());
-        log.info("Expired Redis key: {}", expiredKey);
 
-        if (!expiredKey.startsWith("cart:")) return;
+        if (!expiredKey.startsWith("cart:")){
+            log.info("Wrong expired key format");
+            throw new RuntimeException("Wrong expired key format");
+        }
 
-        UUID userId = UUID.fromString(expiredKey.replace("cart:active:", ""));
-        cartRepository.findByUserId(userId).ifPresent(cart -> {
+        UUID cartId = UUID.fromString(expiredKey.replace("cart:active:", ""));
+        cartRepository.findById(cartId).ifPresent(cart -> {
             productClient.releaseByCart(cart.getId());
-            cartRepository.delete(cart);
-            log.info("Released products & deleted cart for userId={}", userId);
+            cart.expire();
+            cartRepository.save(cart);
+            log.info("Released products and deleted cart for userId={}", cart.getUserId());
         });
     }
 }

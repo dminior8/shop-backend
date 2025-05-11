@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import pl.dminior8.cart_service.domain.event.CartCheckedOutEvent;
-import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
+import pl.dminior8.cart_service.domain.event.*;
 
 @Component
 public class RabbitMqDomainEventPublisher implements DomainEventPublisher {
@@ -31,19 +30,25 @@ public class RabbitMqDomainEventPublisher implements DomainEventPublisher {
         try {
             String payload = mapper.writeValueAsString(domainEvent);
 
-            if (domainEvent instanceof ProductReservedEvent) {
-                // exchange, routingKey (tutaj pusta), obiekt payload
-                rabbit.convertAndSend(cartEventsExchange, "", payload);
-            }
-            else if (domainEvent instanceof CartCheckedOutEvent) {
-                rabbit.convertAndSend(orderEventsExchange, "", payload);
-            }
-            else {
-                throw new IllegalArgumentException("Nieobsługiwany event: " + domainEvent.getClass());
+            switch (domainEvent) {
+                case ProductReservedEvent productReservedEvent ->
+                        rabbit.convertAndSend(cartEventsExchange, "product.reserved", payload);
+                case ProductRemovedEvent productRemovedEvent ->
+                        rabbit.convertAndSend(cartEventsExchange, "product.removed", payload);
+                case CartCheckedOutEvent cartCheckedOutEvent ->
+                        rabbit.convertAndSend(orderEventsExchange, "cart.checkedout", payload);
+                case CartCreatedEvent cartCreatedEvent ->
+                        rabbit.convertAndSend(cartEventsExchange, "cart.created", payload);
+                case CartExpiredEvent cartExpiredEvent ->
+                        rabbit.convertAndSend(cartEventsExchange, "cart.expired", payload);
+                case null, default -> {
+                    assert domainEvent != null;
+                    throw new IllegalArgumentException("Unsupported event: " + domainEvent.getClass());
+                }
             }
 
         } catch (Exception ex) {
-            throw new RuntimeException("Błąd serializacji zdarzenia: " + domainEvent, ex);
+            throw new RuntimeException("Event serialization error: " + domainEvent, ex);
         }
     }
 }

@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dminior8.cart_service.application.shoppingCart.command.createCart.CreateCartCommand;
 import pl.dminior8.cart_service.application.shoppingCart.command.createCart.CreateCartCommandHandler;
-import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
 import pl.dminior8.cart_service.domain.entity.Cart;
-import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
+import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
 import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
+import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
 import pl.dminior8.cart_service.infrastructure.redis.CartActivityService;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 import pl.dminior8.common.dto.ProductDto;
@@ -18,18 +18,18 @@ import pl.dminior8.common.exceptions.product.ProductNotAvailableException;
 @Component
 @Slf4j
 public class AddProductToCartCommandHandler {
-    private final CartRepository cartRepo;
+    private final CartRepository cartRepository;
     private final ExternalProductServiceClient productClient;
     private final DomainEventPublisher eventPublisher;
     private final CartActivityService activityService;
     private final CreateCartCommandHandler createCartCommandHandler;
 
-    public AddProductToCartCommandHandler(CartRepository cartRepo,
+    public AddProductToCartCommandHandler(CartRepository cartRepository,
                                           ExternalProductServiceClient productClient,
                                           DomainEventPublisher eventPublisher,
                                           CartActivityService activityService,
                                           CreateCartCommandHandler createCartCommandHandler) {
-        this.cartRepo = cartRepo;
+        this.cartRepository = cartRepository;
         this.productClient = productClient;
         this.eventPublisher = eventPublisher;
         this.activityService = activityService;
@@ -39,13 +39,13 @@ public class AddProductToCartCommandHandler {
     @Transactional
     public void handle(AddProductToCartCommand cmd) {
         // 1. Pobierz lub utwórz agregat Cart
-        Cart cart = cartRepo.findByUserId(cmd.userId())
+        Cart cart = cartRepository.findByUserId(cmd.userId())
                 .orElseGet(() -> createCartCommandHandler.handle(new CreateCartCommand(cmd.userId())));
 
         // 2. Weryfikacja stanu produktu
         ProductDto product = productClient.getProductById(cmd.productId());
 
-        if(product.getAvailableQuantity() < cmd.quantity()){
+        if (product.getAvailableQuantity() < cmd.quantity()) {
             throw new ProductNotAvailableException(cmd.productId(), cmd.quantity(), product.getAvailableQuantity());
         }
 
@@ -53,7 +53,7 @@ public class AddProductToCartCommandHandler {
         cart.addProduct(cmd.productId(), cmd.quantity(), product.getPrice());
 
         // 4. Zapis agregatu i odświeżenie TTL koszyka
-        cartRepo.save(cart);
+        cartRepository.save(cart);
 
         // 5. Rezerwacja produktu
         productClient.reserveProduct(

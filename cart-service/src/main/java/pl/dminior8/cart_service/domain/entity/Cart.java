@@ -36,7 +36,7 @@ public class Cart {
     @JoinColumn(name = "cart_id")
     private List<CartItem> items = new ArrayList<>();
 
-    @Transient
+    @Transient //pomija pole w zapisie do bazy (zdarzenia domenowe publikowane za pomocą publishera na kolejkę)
     private final List<Object> domainEvents = new ArrayList<>();
 
     // fabryka
@@ -102,6 +102,7 @@ public class Cart {
         }
     }
 
+    //metoda czyszcząca listę domainEvents po publikacji
     public List<Object> pullDomainEvents() {
         List<Object> events = new ArrayList<>(domainEvents);
         domainEvents.clear();

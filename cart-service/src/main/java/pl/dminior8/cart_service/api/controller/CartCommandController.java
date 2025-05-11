@@ -4,9 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dminior8.cart_service.application.shoppingCart.command.addProductToCart.AddProductToCartCommandHandler;
 import pl.dminior8.cart_service.application.shoppingCart.command.addProductToCart.AddProductToCartCommand;
+import pl.dminior8.cart_service.application.shoppingCart.command.checkoutCart.CheckoutCartCommand;
 import pl.dminior8.cart_service.application.shoppingCart.command.checkoutCart.CheckoutCartCommandHandler;
 import pl.dminior8.cart_service.application.shoppingCart.command.createCart.CreateCartCommand;
 import pl.dminior8.cart_service.application.shoppingCart.command.createCart.CreateCartCommandHandler;
+import pl.dminior8.cart_service.application.shoppingCart.command.removeProductFromCart.RemoveProductFromCartCommand;
 import pl.dminior8.cart_service.application.shoppingCart.command.removeProductFromCart.RemoveProductFromCartCommandHandler;
 
 import java.util.UUID;
@@ -48,13 +50,13 @@ public class CartCommandController {
     public ResponseEntity<Void> removeProduct(@PathVariable UUID userId,
                                               @RequestParam UUID productId,
                                               @RequestParam int quantity) {
-        removeHandler.handle(AddProductToCartCommand.builder().userId(userId).productId(productId).quantity(quantity).build());
+        removeHandler.handle(RemoveProductFromCartCommand.builder().userId(userId).productId(productId).quantity(quantity).build());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/checkout")
     public ResponseEntity<Void> checkout(@PathVariable UUID userId) {
-        checkoutHandler.handle(AddProductToCartCommand.builder().userId(userId).build());
+        checkoutHandler.handle(CheckoutCartCommand.builder().userId(userId).build());
         return ResponseEntity.ok().build();
     }
 }

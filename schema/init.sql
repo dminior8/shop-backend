@@ -13,7 +13,7 @@ CREATE TABLE products (
 CREATE TABLE carts (
                        id               UUID PRIMARY KEY,
                        user_id          UUID                     NOT NULL,
-                       status           VARCHAR(16)              NOT NULL CHECK (status IN ('NEW', 'ACTIVE', 'CHECKED_OUT', 'EXPIRED')),
+                       status           VARCHAR(16)              NOT NULL CHECK (status IN ('ACTIVE', 'CHECKED_OUT', 'EXPIRED')),
                        created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                        updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
                        version          BIGINT                   NOT NULL DEFAULT 0

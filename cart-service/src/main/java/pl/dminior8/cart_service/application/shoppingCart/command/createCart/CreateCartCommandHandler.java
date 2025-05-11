@@ -2,32 +2,46 @@ package pl.dminior8.cart_service.application.shoppingCart.command.createCart;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pl.dminior8.cart_service.application.shoppingCart.command.addProductToCart.AddProductToCartCommand;
 import pl.dminior8.cart_service.domain.entity.Cart;
+import pl.dminior8.cart_service.domain.event.CartCreatedEvent;
 import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class CreateCartCommandHandler {
 
-    private final CartRepository cartRepo;
+    private final CartRepository cartRepository;
     private final DomainEventPublisher eventPublisher;
 
-    public CreateCartCommandHandler(CartRepository cartRepo,
+    public CreateCartCommandHandler(CartRepository cartRepository,
                                     DomainEventPublisher eventPublisher) {
-        this.cartRepo = cartRepo;
+        this.cartRepository = cartRepository;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional
     public Cart handle(CreateCartCommand cmd) {
+        AtomicBoolean isNewCart = new AtomicBoolean(false);
+
         // 1. Utwórz agregat Cart
-        Cart cart = Cart.create(cmd.userId());
+        Cart cart = cartRepository.findByUserId(cmd.userId())
+                .orElseGet(() -> {
+                    Cart newCart = Cart.create(cmd.userId());
+                    isNewCart.set(true);
+                    return newCart;
+                });
 
         // 2. Zapis agregatu
-        cartRepo.save(cart);
+        cartRepository.save(cart);
 
-        // 3. Publikacja zdarzeń (np. CartCreatedEvent)
+        // 3. Zapis zdarzenia domenowego
+        if(isNewCart.get()) {
+            cart.getDomainEvents().add(new CartCreatedEvent(cart.getId(), cart.getUserId()));
+        }
+
+        // 4. Publikacja zdarzeń (np. CartCreatedEvent)
         for (Object ev : cart.pullDomainEvents()) {
             eventPublisher.publish(ev);
         }
