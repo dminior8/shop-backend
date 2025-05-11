@@ -11,7 +11,7 @@ The system supports real-time communication between services using **Redis** for
 - [Setup](#setup)
 - [Building and Running the Application](#building-and-running-the-application)
 - [Endpoints](#endpoints)
-- [Database Schema](#database-schema)
+- [Messaging](#messaging)
 - [License](#license)
 
 ## Overview
@@ -87,30 +87,59 @@ This will start:
 ## Endpoints
 
 ### Product Service
-| Method   | URL                          | Description                                                                       |
-| -------- |------------------------------|-----------------------------------------------------------------------------------|
-| `GET`    | `api/v1/products/{id}`       | Retrieves a product by its UUID.                                                  |
+
+#### Commands (Write Operations)
+| Method   | URL                                      | Description                                                                |
+|----------|------------------------------------------|----------------------------------------------------------------------------|
+| `POST`   | `/api/v1/products/{productId}/reserve`   | Reserves a product quantity for a cart.                                    |
+| `DELETE` | `/api/v1/products/{productId}/release`   | Releases partially reserved product quantity.                              |
+| `DELETE` | `/api/v1/products/release-by-cart/{cartId}` | Releases all product reservations for a cart.                           |
+
+#### Queries (Read Operations)
+| Method   | URL                          | Description                                                                 |
+|----------|------------------------------|-----------------------------------------------------------------------------|
+| `GET`    | `/api/v1/products/{id}`      | Retrieves product details by ID.                                            |
+
+---
 
 ### Cart Service
-Commands (write side)
-| Method   | URL                                           | Description                                                      |
-| -------- |-----------------------------------------------|------------------------------------------------------------------|
-| `POST`    | `/api/v1/user/{userId}/cart`                 | Creates a new cart for the user.                                 |
-| `POST`   | `/api/v1/user/{userId}/cart/add-product`      | Adds a product to the cart.                                      |
-| `DELETE`   | `/api/v1/user/{userId}/cart/remove-product` | Removes a product from the cart.                                 |
-| `POST`   | `/api/v1/user/{userId}/cart/checkout`         | Checks out the cart.                                             |
 
+#### Commands (Write Operations)
+| Method   | URL                                      | Description                                                                |
+|----------|------------------------------------------|----------------------------------------------------------------------------|
+| `POST`   | `/api/v1/user/{userId}/cart`            | Creates a new cart for the user.                                            |
+| `POST`   | `/api/v1/user/{userId}/cart/add-product` | Adds a product to the cart (requires productId and quantity).              |
+| `DELETE` | `/api/v1/user/{userId}/cart/remove-product` | Removes a product from the cart (requires productId and quantity).      |
+| `POST`   | `/api/v1/user/{userId}/cart/checkout`    | Finalizes cart checkout and initiates order creation.                      |
 
-Queries (read side)
-| Method   | URL                                | Description                                                                 |
-| -------- |------------------------------------|-----------------------------------------------------------------------------|
-| `GET`    | `/api/v1/user/{userId}/cart`       | Gets the current cart for the user.                                         |
-| `GET`   | `/api/v1/user/{userId}/cart/total`  | Gets the total value of the cart.                                           |
+#### Queries (Read Operations)
+| Method   | URL                                      | Description                                                                |
+|----------|------------------------------------------|----------------------------------------------------------------------------|
+| `GET`    | `/api/v1/user/{userId}/cart`            | Retrieves active cart for the user.                                         |
+| `GET`    | `/api/v1/user/{userId}/cart/{cartId}`   | Retrieves specific cart by ID.                                              |
+| `GET`    | `/api/v1/user/{userId}/cart/total`      | Calculates total value of the cart.                                         |
 
-### Order Service
-| Method   | URL                                | Description                                                                 |
-| -------- |------------------------------------|-----------------------------------------------------------------------------|
-| `GET`    | `/api/v1/orders/{id}`              | Retrieves an order by its UUID.                                             |
+---
+
+## Messaging
+
+### Key Exchanges & Routing:
+- **cart.events.exchange** (Topic):
+  - `product.reserved` - Product reservation confirmed
+  - `product.removed` - Product removed from cart
+  - `cart.created` - New cart created
+  - `cart.expired` - Cart expired due to inactivity
+
+- **order.events.exchange** (Direct):
+  - `cart.checkedout` - Cart checkout completed (triggers order creation)
+
+### Queue Bindings:
+- `product.reserved.queue` ← product.reserved
+- `product.removed.queue` ← product.removed  
+- `cart.created.queue` ← cart.created
+- `cart.expired.queue` ← cart.expired
+- `cart.checkedout.queue` ← cart.checkedout
+
 
 ## Highlights
 - CQRS implementation: Commands and queries are completely separated for clarity and scalability.
