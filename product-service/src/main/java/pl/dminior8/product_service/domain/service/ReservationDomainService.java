@@ -21,10 +21,9 @@ public class ReservationDomainService {
 
     @Transactional
     public void addOrUpdateReservation(UUID cartId, UUID productId, int qty) {
-        Optional<ProductReservation> opt = productReservationRepository.findByCartIdAndProductId(cartId, productId);
-        if (opt.isPresent()) {
-            var r = opt.get();
-            r.increaseQuantity(qty);
+        Optional<ProductReservation> productReservation = productReservationRepository.findByCartIdAndProductId(cartId, productId);
+        if (productReservation.isPresent()) {
+            productReservation.get().increaseQuantity(qty);
         } else {
             productReservationRepository.save(new ProductReservation(cartId, productId, qty));
         }
@@ -32,11 +31,12 @@ public class ReservationDomainService {
 
     @Transactional
     public void removeQuantityFromReservation(UUID cartId, UUID prodId, int qty) {
-        var r = productReservationRepository.findByCartIdAndProductId(cartId, prodId)
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
-        r.decreaseQuantity(qty);
-        if (r.getQuantity() <= 0) {
-            productReservationRepository.delete(r);
+        Optional<ProductReservation> r = productReservationRepository.findByCartIdAndProductId(cartId, prodId);
+        if (r.isPresent()) {
+            r.get().decreaseQuantity(qty);
+            if (r.get().getQuantity() <= 0) {
+                productReservationRepository.delete(r.get());
+            }
         }
     }
 

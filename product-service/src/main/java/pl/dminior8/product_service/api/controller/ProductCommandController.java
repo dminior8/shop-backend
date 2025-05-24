@@ -37,6 +37,7 @@ public class ProductCommandController {
         this.mapper = mapper;
     }
 
+    @Deprecated(forRemoval = true)
     @PostMapping("/{productId}/reserve")
     public ResponseEntity<ProductDto> reserveProduct(@PathVariable UUID productId,
                                                      @RequestParam UUID cartId,

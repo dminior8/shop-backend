@@ -11,7 +11,6 @@ public record CartCheckedOutEvent(
         UUID userId,
         Instant occurredAt
 ) {
-    // Konstruktor używany przez Jacksona.
     @JsonCreator
     public CartCheckedOutEvent(
             @JsonProperty("cartId") UUID cartId,

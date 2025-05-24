@@ -119,7 +119,6 @@ This will start:
 | `GET`    | `/api/v1/user/{userId}/cart/{cartId}`   | Retrieves specific cart by ID.                                              |
 | `GET`    | `/api/v1/user/{userId}/cart/total`      | Calculates total value of the cart.                                         |
 
----
 
 ## Messaging
 

@@ -7,6 +7,8 @@ import pl.dminior8.product_service.domain.service.ProductDomainService;
 import pl.dminior8.product_service.domain.service.ReservationDomainService;
 import pl.dminior8.product_service.domain.entity.ProductReservation;
 
+import java.util.List;
+
 @Component
 public class ReleaseProductByCartCommandHandler {
 
@@ -22,7 +24,7 @@ public class ReleaseProductByCartCommandHandler {
     @Transactional
     public void handle(ReleaseProductByCartCommand cmd) {
         // 1. Pobierz wszystkie rezerwacje
-        var reservations = reservationService.getReservationsByCart(cmd.cartId());
+        List<ProductReservation> reservations = reservationService.getReservationsByCart(cmd.cartId());
         // 2. Przywróć stan produktu dla każdej rezerwacji
         for (ProductReservation res : reservations) {
             productService.increaseStock(res.getProductId(), res.getQuantity());

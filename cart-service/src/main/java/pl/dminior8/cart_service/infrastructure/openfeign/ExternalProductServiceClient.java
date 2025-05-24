@@ -13,9 +13,11 @@ public interface ExternalProductServiceClient {
     @GetMapping("/api/v1/products/{productId}")
     ProductDto getProductById(@PathVariable UUID productId);
 
+    @Deprecated(forRemoval = true)
     @PostMapping("/api/v1/products/{productId}/reserve")
     ProductDto reserveProduct(@PathVariable UUID productId, @RequestParam UUID userId, @RequestParam UUID cartId, @RequestParam int quantity);
 
+    @Deprecated(forRemoval = true)
     @DeleteMapping("api/v1/products/{productId}/release")
     ProductDto releaseProductPartially(@PathVariable UUID productId, @RequestParam UUID userId, @RequestParam UUID cartId, @RequestParam int quantity);
 

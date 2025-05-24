@@ -8,13 +8,14 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.UUID;
 
+import static pl.dminior8.cart_service.domain.entity.CartItemStatus.PROCESSING;
+
 @Entity
 @Table(name = "cart_items")
 @Getter
 @Setter
 public class CartItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "cart_id")
@@ -28,16 +29,21 @@ public class CartItem {
     @Min(0)
     private double price;
 
+    @Enumerated(EnumType.STRING)
+    private CartItemStatus status;
+
     private Instant addedAt;
 
     protected CartItem() {
     }
 
     public CartItem(UUID cartId, UUID productId, int qty, double price) {
+        this.id = UUID.randomUUID();
         this.cartId = cartId;
         this.productId = productId;
         this.quantity = qty;
         this.price = price;
+        this.status = PROCESSING;
         this.addedAt = Instant.now();
     }
 

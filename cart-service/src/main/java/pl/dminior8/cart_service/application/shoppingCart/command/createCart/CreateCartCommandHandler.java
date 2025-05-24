@@ -3,8 +3,8 @@ package pl.dminior8.cart_service.application.shoppingCart.command.createCart;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dminior8.cart_service.domain.entity.Cart;
-import pl.dminior8.cart_service.domain.event.CartCreatedEvent;
-import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
+import pl.dminior8.common.event.CartCreatedEvent;
+import pl.dminior8.cart_service.infrastructure.messaging.publishers.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 
 import java.util.concurrent.atomic.AtomicBoolean;

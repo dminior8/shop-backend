@@ -9,10 +9,10 @@ INSERT INTO carts (id, user_id, status, version) VALUES
                                                      ('e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'CHECKED_OUT', 3),
                                                      ('f6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', '06eebc99-9c0b-4ef8-bb6d-6bb9bd380a18', 'ACTIVE', 1);
 
-INSERT INTO cart_items (id, cart_id, product_id, quantity, price) VALUES
-                                                                      ('17eebc99-9c0b-4ef8-bb6d-6bb9bd380a19', 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 1, 5499.00),
-                                                                      ('28eebc99-9c0b-4ef8-bb6d-6bb9bd380a20', 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 2, 699.00),
-                                                                      ('39eebc99-9c0b-4ef8-bb6d-6bb9bd380a21', 'f6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 1, 3999.00);
+INSERT INTO cart_items (id, cart_id, product_id, quantity, price, status) VALUES
+                                                                      ('17eebc99-9c0b-4ef8-bb6d-6bb9bd380a19', 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 1, 5499.00, 'COMPLETED'),
+                                                                      ('28eebc99-9c0b-4ef8-bb6d-6bb9bd380a20', 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 2, 699.00, 'COMPLETED'),
+                                                                      ('39eebc99-9c0b-4ef8-bb6d-6bb9bd380a21', 'f6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17', 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 1, 3999.00, 'COMPLETED');
 
 INSERT INTO orders (id, user_id, cart_id, status, total_amount, version) VALUES
     ('4aeebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a16', 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'COMPLETED', 6897.00, 1);

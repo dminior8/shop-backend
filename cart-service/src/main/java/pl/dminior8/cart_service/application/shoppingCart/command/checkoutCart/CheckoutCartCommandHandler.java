@@ -3,7 +3,7 @@ package pl.dminior8.cart_service.application.shoppingCart.command.checkoutCart;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dminior8.cart_service.domain.entity.Cart;
-import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
+import pl.dminior8.cart_service.infrastructure.messaging.publishers.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
 import pl.dminior8.cart_service.infrastructure.redis.CartActivityService;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;

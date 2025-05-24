@@ -12,7 +12,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import pl.dminior8.cart_service.infrastructure.redis.CartExpirationListener;
+import pl.dminior8.cart_service.infrastructure.messaging.listeners.CartExpirationListener;
 
 @Configuration
 public class RedisConfig {

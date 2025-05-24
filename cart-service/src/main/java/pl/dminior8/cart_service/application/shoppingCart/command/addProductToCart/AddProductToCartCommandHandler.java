@@ -1,39 +1,48 @@
 package pl.dminior8.cart_service.application.shoppingCart.command.addProductToCart;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dminior8.cart_service.application.shoppingCart.command.createCart.CreateCartCommand;
 import pl.dminior8.cart_service.application.shoppingCart.command.createCart.CreateCartCommandHandler;
 import pl.dminior8.cart_service.domain.entity.Cart;
-import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
-import pl.dminior8.cart_service.infrastructure.messaging.DomainEventPublisher;
 import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
 import pl.dminior8.cart_service.infrastructure.redis.CartActivityService;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 import pl.dminior8.common.dto.ProductDto;
-import pl.dminior8.common.exceptions.product.ProductNotAvailableException;
+import pl.dminior8.common.event.ProductReservedEvent;
+import pl.dminior8.common.exceptions.product.IncorrectProductPrice;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static pl.dminior8.cart_service.domain.entity.CartItemStatus.RESERVED;
+import static pl.dminior8.cart_service.infrastructure.messaging.publishers.RabbitMqDomainEventPublisher.PRODUCT_RESERVED_ROUTING_KEY;
 
 
 @Component
 @Slf4j
 public class AddProductToCartCommandHandler {
+    @Value("${messaging.exchange.cart-events}")
+    private String cartEventsExchange;
+
     private final CartRepository cartRepository;
     private final ExternalProductServiceClient productClient;
-    private final DomainEventPublisher eventPublisher;
     private final CartActivityService activityService;
     private final CreateCartCommandHandler createCartCommandHandler;
+    private final RabbitTemplate rabbitTemplate;
 
     public AddProductToCartCommandHandler(CartRepository cartRepository,
                                           ExternalProductServiceClient productClient,
-                                          DomainEventPublisher eventPublisher,
                                           CartActivityService activityService,
-                                          CreateCartCommandHandler createCartCommandHandler) {
+                                          CreateCartCommandHandler createCartCommandHandler, RabbitTemplate rabbitTemplate) {
         this.cartRepository = cartRepository;
         this.productClient = productClient;
-        this.eventPublisher = eventPublisher;
         this.activityService = activityService;
         this.createCartCommandHandler = createCartCommandHandler;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Transactional
@@ -42,34 +51,32 @@ public class AddProductToCartCommandHandler {
         Cart cart = cartRepository.findByUserId(cmd.userId())
                 .orElseGet(() -> createCartCommandHandler.handle(new CreateCartCommand(cmd.userId())));
 
-        // 2. Weryfikacja stanu produktu
-        ProductDto product = productClient.getProductById(cmd.productId());
-
-        if (product.getAvailableQuantity() < cmd.quantity()) {
-            throw new ProductNotAvailableException(cmd.productId(), cmd.quantity(), product.getAvailableQuantity());
-        }
+        // 2. Pobranie ceny produktu
+        Optional<ProductDto> product = Optional.ofNullable(productClient.getProductById(cmd.productId()));
 
         // 3. Logika biznesowa w agregacie
-        cart.addProduct(cmd.productId(), cmd.quantity(), product.getPrice());
+        if (product.isEmpty()) {
+            throw new NullPointerException("Product not found");
+        } else if (product.get().getPrice() <= 0) {
+            throw new IncorrectProductPrice(cmd.productId(), product.get().getPrice());
+        } else {
+            cart.addProduct(cmd.productId(), cmd.quantity(), product.get().getPrice());
+        }
 
-        // 4. Zapis agregatu i odświeżenie TTL koszyka
-        cartRepository.save(cart);
-
-        // 5. Rezerwacja produktu
-        productClient.reserveProduct(
-                cmd.productId(),
-                cmd.userId(),
-                cart.getId(),
-                cmd.quantity()
-        );
-
-        // 6. Odświeżenie ważności koszyka
-        activityService.refreshCartTtl(cart.getId());
-
-        // 7. Publikacja zdarzeń domenowych
+        // 4. Publikacja zdarzenia domenowego
         for (Object ev : cart.pullDomainEvents()) {
             if (ev instanceof ProductReservedEvent) {
-                eventPublisher.publish(ev);
+                UUID cartItemId = (UUID) rabbitTemplate.convertSendAndReceive(
+                        cartEventsExchange,
+                        PRODUCT_RESERVED_ROUTING_KEY,
+                        ev
+                );
+                // 5. Odświeżenie ważności koszyka
+                activityService.refreshCartTtl(cart.getId());
+
+                // 6. Zapis agregatu
+                cart.getItems().stream().filter(cartItem -> cartItem.getId().equals(cartItemId)).findFirst().ifPresent(cartItem -> cartItem.setStatus(RESERVED));
+                cartRepository.save(cart);
             }
         }
     }

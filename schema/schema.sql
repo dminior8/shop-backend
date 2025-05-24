@@ -25,6 +25,7 @@ CREATE TABLE cart_items (
                             product_id UUID                     NOT NULL REFERENCES products(id),
                             quantity   INTEGER                  NOT NULL CHECK (quantity > 0),
                             price      NUMERIC(12, 2)           NOT NULL CHECK (price >= 0),
+                            status VARCHAR(16)              NOT NULL CHECK (status IN ('PROCESSING', 'RESERVED', 'COMPLETED', 'CANCELLED')),
                             added_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
@@ -54,7 +55,7 @@ CREATE TABLE product_reservations (
                                       cart_id      UUID                  NOT NULL,
                                       product_id   UUID                  NOT NULL,
                                       quantity     INTEGER               NOT NULL CHECK (quantity > 0),
-                                      created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                      created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 
                                       UNIQUE(cart_id, product_id)
 );

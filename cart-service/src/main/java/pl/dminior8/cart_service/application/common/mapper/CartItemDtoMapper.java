@@ -7,6 +7,7 @@ import pl.dminior8.common.dto.CartItemDto;
 
 @Mapper(componentModel = "spring")
 public interface CartItemDtoMapper {
+
     CartItemDto toCartItemDto(CartItem cartItem);
 }
 

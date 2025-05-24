@@ -7,4 +7,4 @@ import java.util.UUID;
 
 
 @Builder
-public record AddProductToCartCommand(UUID userId, UUID productId, int quantity) implements CartCommand {}
+public record AddProductToCartCommand(UUID userId, UUID productId, int quantity, double price) implements CartCommand {}

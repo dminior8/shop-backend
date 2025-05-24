@@ -1,4 +1,4 @@
-package pl.dminior8.cart_service.infrastructure.redis;
+package pl.dminior8.cart_service.infrastructure.messaging.listeners;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
+import pl.dminior8.common.exceptions.product.RedisKeyException;
 
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class CartExpirationListener implements MessageListener {
 
         if (!expiredKey.startsWith("cart:")){
             log.info("Wrong expired key format");
-            throw new RuntimeException("Wrong expired key format");
+            throw new RedisKeyException(expiredKey);
         }
 
         UUID cartId = UUID.fromString(expiredKey.replace("cart:active:", ""));

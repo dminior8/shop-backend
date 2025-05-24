@@ -3,9 +3,9 @@ package pl.dminior8.cart_service.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import pl.dminior8.common.event.CartCheckedOutEvent;
-import pl.dminior8.cart_service.domain.event.CartExpiredEvent;
-import pl.dminior8.cart_service.domain.event.ProductRemovedEvent;
-import pl.dminior8.cart_service.domain.event.ProductReservedEvent;
+import pl.dminior8.common.event.CartExpiredEvent;
+import pl.dminior8.common.event.ProductRemovedEvent;
+import pl.dminior8.common.event.ProductReservedEvent;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -50,6 +50,7 @@ public class Cart {
         return cart;
     }
 
+    //
     public void addProduct(UUID productId, int quantity, double price) {
         ensureActive();
         CartItem existing = items.stream()
@@ -64,25 +65,16 @@ public class Cart {
         }
         this.updatedAt = Instant.now();
         // rejestracja zdarzenia
-        this.domainEvents.add(new ProductReservedEvent(this.id, productId, quantity));
+        this.domainEvents.add(new ProductReservedEvent(items.getLast().getId(), this.id, productId, quantity));
     }
 
     public void removeProduct(UUID productId, int quantity) {
         ensureActive();
-        CartItem existing = items.stream()
-                .filter(i -> i.getProductId().equals(productId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Product " + productId + " not in cart"));
-
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity must be positive");
-        }
-        if (quantity >= existing.getQuantity()) {
-            items.remove(existing);
-            domainEvents.add(new ProductRemovedEvent(this.id, productId, existing.getQuantity()));
+        } else if (quantity == 0) {
+            return;
         } else {
-            existing.decreaseQuantity(quantity);
             domainEvents.add(new ProductRemovedEvent(this.id, productId, quantity));
         }
         this.updatedAt = Instant.now();
@@ -115,4 +107,5 @@ public class Cart {
         this.updatedAt = Instant.now();
         this.domainEvents.add(new CartExpiredEvent(this.id, this.userId));
     }
+
 }
