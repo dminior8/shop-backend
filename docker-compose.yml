@@ -68,6 +68,24 @@ services:
       timeout: 5s
       retries: 5
 
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      product-service:
+        condition: service_started
+      cart-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+
   product-service:
     build:
       context: .
