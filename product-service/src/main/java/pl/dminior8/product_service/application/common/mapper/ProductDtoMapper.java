@@ -20,6 +20,9 @@ public class ProductDtoMapper {
         if (p.getName() != null) {
             productDto.setName(p.getName());
         }
+        if (p.getDescription() != null) {
+            productDto.setDescription(p.getDescription());
+        }
         if (p.getAvailableQuantity() >= 0) {
             productDto.setAvailableQuantity(p.getAvailableQuantity());
         }

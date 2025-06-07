@@ -20,6 +20,8 @@ public class ProductDto {
     @NotBlank
     private String name;
 
+    private String description;
+
     @Min(0)
     private int availableQuantity;
 
