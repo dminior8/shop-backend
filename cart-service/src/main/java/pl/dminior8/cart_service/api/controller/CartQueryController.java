@@ -11,6 +11,7 @@ import pl.dminior8.cart_service.application.shoppingCart.query.getCartTotalValue
 import pl.dminior8.cart_service.domain.entity.Cart;
 import pl.dminior8.common.dto.CartDto;
 import pl.dminior8.cart_service.application.common.mapper.CartDtoMapper;
+import pl.dminior8.cart_service.infrastructure.openfeign.ExternalProductServiceClient;
 
 import java.util.UUID;
 
@@ -22,27 +23,46 @@ public class CartQueryController {
     private final GetCartByCartIdQueryHandler getCartByCartId;
     private final GetCartTotalValueQueryHandler getTotal;
     private final CartDtoMapper cartDtoMapper;
+    private final ExternalProductServiceClient productClient;
 
     public CartQueryController(GetCartByUserIdQueryHandler getCartByUserId,
                                GetCartByCartIdQueryHandler getCartByCartId,
                                GetCartTotalValueQueryHandler getTotal,
-                               CartDtoMapper cartDtoMapper) {
+                               CartDtoMapper cartDtoMapper,
+                               ExternalProductServiceClient productClient) {
         this.getCartByUserId = getCartByUserId;
         this.getCartByCartId = getCartByCartId;
         this.getTotal = getTotal;
         this.cartDtoMapper = cartDtoMapper;
+        this.productClient = productClient;
     }
 
     @GetMapping()
     public ResponseEntity<CartDto> getCartByUserId(@PathVariable UUID userId) {
         Cart cart = getCartByUserId.handle(new GetCartByUserIdQuery(userId));
-        return ResponseEntity.ok(cartDtoMapper.toCartDto(cart));
+        CartDto cartDto = cartDtoMapper.toCartDto(cart);
+        cartDto.getItems().forEach(item -> {
+            try {
+                item.setName(productClient.getProductById(item.getProductId()).getName());
+            } catch (Exception e) {
+                item.setName("Unknown Product");
+            }
+        });
+        return ResponseEntity.ok(cartDto);
     }
 
     @GetMapping("/{cartId}")
     public ResponseEntity<CartDto> getCartById(@PathVariable UUID userId, @PathVariable UUID cartId) {
         Cart cart = getCartByCartId.handle(new GetCartByCartIdQuery(userId, cartId));
-        return ResponseEntity.ok(cartDtoMapper.toCartDto(cart));
+        CartDto cartDto = cartDtoMapper.toCartDto(cart);
+        cartDto.getItems().forEach(item -> {
+            try {
+                item.setName(productClient.getProductById(item.getProductId()).getName());
+            } catch (Exception e) {
+                item.setName("Unknown Product");
+            }
+        });
+        return ResponseEntity.ok(cartDto);
     }
 
     @GetMapping("/total")

@@ -16,6 +16,8 @@ public class CartItemDto {
     @Column(nullable = false)
     private UUID productId;
 
+    private String name;
+
     @Column(nullable = false)
     private int quantity;
 
