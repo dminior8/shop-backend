@@ -10,6 +10,7 @@ The system supports real-time communication between services using **Redis** for
 - [Technologies Used](#technologies-used)
 - [Setup](#setup)
 - [Building and Running the Application](#building-and-running-the-application)
+- [API Gateway](#api-gateway)
 - [Endpoints](#endpoints)
 - [Messaging](#messaging)
 - [License](#license)
@@ -84,6 +85,26 @@ This will start:
 - `RabbitMQ` (dashboard: http://localhost:15672)
 
 
+### API Gateway
+
+A centralized **API Gateway** using **Spring Cloud Gateway** has been introduced to streamline routing and external access to the microservices. Instead of exposing each service on a separate port, the gateway handles incoming requests and routes them to the appropriate service based on URL path.
+
+#### Configured Routes:
+
+| Path Prefix           | Routed To                                       |
+| --------------------- | ----------------------------------------------- |
+| `/api/v1/user/**`     | Cart Service (`http://cart-service:8081`)       |
+| `/api/v1/products/**` | Product Service (`http://product-service:8082`) |
+
+By default, the gateway listens on port `8080`, enabling access like:
+
+```
+GET http://localhost:8080/api/v1/products/{id}
+```
+
+This improves maintainability, enables future rate-limiting or auth policies, and centralizes cross-cutting concerns.
+
+
 ## Endpoints
 
 ### Product Service
@@ -99,6 +120,8 @@ This will start:
 | Method   | URL                          | Description                                                                 |
 |----------|------------------------------|-----------------------------------------------------------------------------|
 | `GET`    | `/api/v1/products/{id}`      | Retrieves product details by ID.                                            |
+| `GET`    | `/api/v1/products`         | Retrieves all available products.                         |
+
 
 ---
 
