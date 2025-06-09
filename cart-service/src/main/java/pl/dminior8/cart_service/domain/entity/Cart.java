@@ -69,15 +69,23 @@ public class Cart {
     }
 
     public void removeProduct(UUID productId, int quantity) {
-        ensureActive();
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        } else if (quantity == 0) {
-            return;
-        } else {
-            domainEvents.add(new ProductRemovedEvent(this.id, productId, quantity));
+        CartItem item = items.stream()
+                .filter(i -> i.getProductId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Product not found in cart"));
+
+        if (item.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Cannot remove more items than available in cart");
         }
-        this.updatedAt = Instant.now();
+
+        item.decreaseQuantity(quantity);
+
+        if (item.getQuantity() <= 0) {
+            items.remove(item);
+        }
+
+        domainEvents.add(new ProductRemovedEvent(id, productId, quantity));
+        updatedAt = Instant.now();
     }
 
     // finalizacja koszyka

@@ -9,9 +9,6 @@ import pl.dminior8.cart_service.infrastructure.redis.CartActivityService;
 import pl.dminior8.cart_service.infrastructure.repository.CartRepository;
 import pl.dminior8.common.event.ProductRemovedEvent;
 
-import java.util.UUID;
-
-import static pl.dminior8.cart_service.domain.entity.CartItemStatus.CANCELLED;
 import static pl.dminior8.cart_service.infrastructure.messaging.publishers.RabbitMqDomainEventPublisher.PRODUCT_REMOVED_ROUTING_KEY;
 
 @Component
@@ -37,32 +34,24 @@ public class RemoveProductFromCartCommandHandler {
         Cart cart = cartRepository.findByUserId(cmd.userId())
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + cmd.userId()));
 
-        // 2. Logika usuwania w agregacie (oraz zapis agregatu)
-        cart.removeProduct(cmd.productId(), cmd.quantity());
+        try {
+            // 2. Logika usuwania w agregacie
+            cart.removeProduct(cmd.productId(), cmd.quantity());
 
-        // 3. Publikacja zdarzenia domenowego
-        for (Object ev : cart.pullDomainEvents()) {
-            if (ev instanceof ProductRemovedEvent) {
-                UUID cartItemId = (UUID) rabbitTemplate.convertSendAndReceive(
-                        cartEventsExchange,
-                        PRODUCT_REMOVED_ROUTING_KEY,
-                        ev
-                );
-
-                // 5. Zapis agregatu
-                cart.getItems().stream().filter(cartItem -> cartItem.getId().equals(cartItemId)).findFirst().ifPresent(cartItem -> {
-                    if (cartItem.getQuantity() > cmd.quantity()) {
-                        cartItem.decreaseQuantity(cmd.quantity());
-
-                    } else {
-                        cartItem.setStatus(CANCELLED);
-                    }
-                });
-                cartRepository.save(cart);
-
-                // 6. Odświeżenie ważności koszyka
-                activityService.expireCartTtl(cart.getId());
+            // 3. Publikacja zdarzenia domenowego i zapis agregatu
+            for (Object ev : cart.pullDomainEvents()) {
+                if (ev instanceof ProductRemovedEvent) {
+                    rabbitTemplate.convertSendAndReceive(
+                            cartEventsExchange,
+                            PRODUCT_REMOVED_ROUTING_KEY,
+                            ev
+                    );
+                    cartRepository.save(cart);
+                    activityService.expireCartTtl(cart.getId());
+                }
             }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Failed to remove product from cart: " + e.getMessage());
         }
     }
 }

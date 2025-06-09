@@ -50,8 +50,16 @@ public class CartCommandController {
     public ResponseEntity<Void> removeProduct(@PathVariable UUID userId,
                                               @RequestParam UUID productId,
                                               @RequestParam int quantity) {
-        removeHandler.handle(RemoveProductFromCartCommand.builder().userId(userId).productId(productId).quantity(quantity).build());
-        return ResponseEntity.ok().build();
+        try {
+            removeHandler.handle(RemoveProductFromCartCommand.builder()
+                    .userId(userId)
+                    .productId(productId)
+                    .quantity(quantity)
+                    .build());
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/checkout")
